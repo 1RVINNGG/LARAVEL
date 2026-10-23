@@ -37,21 +37,21 @@ Instructora: Ing. Irina Fong
 
 | Icono | Tecnología | Requisito | Versión que usé |
 |:-----:|------------|-----------|-----------------|
-| <img src="https://skillicons.dev/icons?i=php" width="32"/> | PHP | 8.0 o superior | `[COMPLETAR: resultado de php -v]` |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/composer/composer-original.svg" width="32"/> | Composer | Última versión estable | `[COMPLETAR: composer -V]` |
-| <img src="https://skillicons.dev/icons?i=laravel" width="32"/> | Laravel | Laravel Installer o `composer create-project` | `[COMPLETAR: php artisan --version]` |
-| <img src="https://skillicons.dev/icons?i=apache" width="32"/> | Servidor web | Apache o Nginx | `[COMPLETAR]` |
-| 🖥️ | Entorno local | XAMPP, WampServer o Laragon | `[COMPLETAR: cuál usaste]` |
-| <img src="https://skillicons.dev/icons?i=mysql" width="32"/> | Base de datos | MySQL o MariaDB funcionando | `[COMPLETAR]` |
-| <img src="https://skillicons.dev/icons?i=vscode" width="32"/> | Editor de código | Visual Studio Code (recomendado) | `[COMPLETAR]` |
-| <img src="https://skillicons.dev/icons?i=nodejs" width="32"/> | Node.js / NPM | Solo si fue necesario | `[COMPLETAR: node -v y npm -v, o dejar en blanco si no los usaste]` |
-| <img src="https://skillicons.dev/icons?i=windows" width="32"/> | Sistema operativo | n/a | `[COMPLETAR]` |
+| <img src="https://skillicons.dev/icons?i=php" width="32"/> | PHP | 8.0 o superior | `8.3.28` (Laravel 13 exige PHP 8.3 o superior) |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/composer/composer-original.svg" width="32"/> | Composer | Última versión estable | `Última versión estable` |
+| <img src="https://skillicons.dev/icons?i=laravel" width="32"/> | Laravel | Laravel Installer o `composer create-project` | `13.x (v13.36.0)`, creado con `composer create-project` |
+| <img src="https://skillicons.dev/icons?i=apache" width="32"/> | Servidor web | Apache o Nginx | `Apache 2.4.65` |
+| 🖥️ | Entorno local | XAMPP, WampServer o Laragon | `WampServer 64-bit` |
+| <img src="https://skillicons.dev/icons?i=mysql" width="32"/> | Base de datos | MySQL o MariaDB funcionando | `MySQL 8.4.7` (incluido en WampServer) |
+| <img src="https://skillicons.dev/icons?i=vscode" width="32"/> | Editor de código | Visual Studio Code (recomendado) | `Visual Studio Code` |
+| <img src="https://skillicons.dev/icons?i=nodejs" width="32"/> | Node.js / NPM | Solo si fue necesario | `Node.js v24.21.0 / npm 11.19.0` (necesarios para compilar los assets con Vite) |
+| <img src="https://skillicons.dev/icons?i=windows" width="32"/> | Sistema operativo | n/a | `Windows` |
 
 ### 1.2 Instalación de dependencias y configuración del `.env`
 
 ```bash
-git clone [COMPLETAR: URL de tu repositorio]
-cd [COMPLETAR: carpeta del proyecto]
+git clone https://github.com/1RVINNGG/LARAVEL.git
+cd LARAVEL
 composer install
 npm install
 cp .env.example .env        # en Windows: copy .env.example .env
@@ -64,38 +64,42 @@ Variables de conexión que configuré en el archivo `.env`:
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=[COMPLETAR: nombre de tu base de datos]
-DB_USERNAME=[COMPLETAR]
+DB_DATABASE=prueba
+DB_USERNAME=root
 DB_PASSWORD=
 ```
 
 ### 1.3 Flujo de comandos utilizado
 
-Paquete de autenticación elegido: **`[COMPLETAR: Laravel/UI o Breeze]`**
-
-Opción Laravel/UI:
+Paquete de autenticación elegido: **`Laravel/UI` (con Bootstrap)**
 
 ```bash
+cd C:\wamp64\www
+composer create-project laravel/laravel PRUEBA
+cd PRUEBA
+php artisan config:clear
+php artisan migrate
 composer require laravel/ui
 php artisan ui bootstrap --auth
-npm install && npm run dev
+npm install
+npm run dev
 ```
 
-Opción Breeze:
+Para levantar el proyecto:
 
 ```bash
-composer require laravel/breeze --dev
-php artisan breeze:install
+composer run dev
+# alternativa en dos terminales:
+php artisan serve
+npm run dev
 ```
-
-> Borra la opción que no usaste y deja solo tus comandos reales, en el orden en que los ejecutaste.
 
 Dependencias de autenticación:
 
 | Gestor | Paquete | Para qué sirve |
 |--------|---------|----------------|
-| Composer | `[COMPLETAR: laravel/ui o laravel/breeze]` | Genera las rutas, controladores y vistas de login y registro |
-| npm | `[COMPLETAR: bootstrap, vite, etc.]` | Estilos y compilación de recursos |
+| Composer | `laravel/ui` | Genera las rutas, controladores y vistas de login y registro |
+| npm | `bootstrap`, `vite` | Estilos y compilación de recursos |
 
 ---
 
@@ -115,6 +119,15 @@ Construir un módulo de autenticación en Laravel aplicando el patrón MVC: regi
 | Vistas | `resources/views/` | Plantillas Blade con el HTML que ve el usuario |
 | Migraciones | `database/migrations/` | Describen las tablas en código para poder recrearlas |
 
+Flujo del registro:
+
+```
+/register (vista Blade)
+   -> RegisterController (app/Http/Controllers/Auth)
+   -> Modelo User (app/Models/User.php)
+   -> Tabla users (MySQL, base "prueba")
+```
+
 ### Comandos de migraciones
 
 ```bash
@@ -124,26 +137,102 @@ php artisan migrate:status
 
 ### Código implementado
 
-`[COMPLETAR: pega aquí los fragmentos importantes de TU proyecto, por ejemplo]`
+**`routes/web.php`**: `Auth::routes()` registra las rutas de login, registro, logout y recuperación de contraseña; `/home` es la página interna.
 
-- `routes/web.php`
-- Controlador de login / registro
-- Modelo `User`
-- Una vista (`login.blade.php`)
+```php
+Route::get('/', function () {
+    return view('welcome');
+});
 
-Cada fragmento va en un bloque de código con una línea que explique qué hace.
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+```
+
+**`app/Http/Controllers/Auth/RegisterController.php`**: valida los datos del formulario y crea el usuario con la contraseña encriptada.
+
+```php
+protected function validator(array $data)
+{
+    return Validator::make($data, [
+        'name' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+        'password' => ['required', 'string', 'min:8', 'confirmed'],
+    ]);
+}
+
+protected function create(array $data)
+{
+    return User::create([
+        'name' => $data['name'],
+        'email' => $data['email'],
+        'password' => Hash::make($data['password']),
+    ]);
+}
+```
+
+**`app/Http/Controllers/HomeController.php`**: el middleware `auth` bloquea el acceso a quien no haya iniciado sesión.
+
+```php
+public function __construct()
+{
+    $this->middleware('auth');
+}
+
+public function index()
+{
+    return view('home');
+}
+```
+
+**`app/Models/User.php`**: conecta la aplicación con la tabla `users` y define qué campos se pueden asignar en masa.
+
+```php
+protected $fillable = [
+    'name',
+    'email',
+    'password',
+];
+```
+
+**`resources/views/auth/login.blade.php`**: vista Blade del formulario de inicio de sesión (generada por `laravel/ui`, con campos `email` y `password` protegidos con `@csrf`).
+
+```blade
+<form method="POST" action="{{ route('login') }}">
+    @csrf
+    <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus>
+    <input id="password" type="password" name="password" required>
+    <button type="submit">Login</button>
+</form>
+```
 
 ---
 
 ## 3. Resultado del laboratorio
 
-`[COMPLETAR: sube tus capturas a docs/capturas/ y ajusta los nombres]`
+### Formulario de registro
 
-![Pantalla de login](docs/capturas/login.png)
+![Formulario de registro](docs/registro.png)
 
-![Pantalla de registro](docs/capturas/registro.png)
+### Dashboard tras iniciar sesión
 
-![Panel con sesión iniciada](docs/capturas/home.png)
+![Panel con sesión iniciada](docs/dashboard.png)
+
+### Usuarios guardados en MySQL (phpMyAdmin)
+
+![Tabla users en phpMyAdmin](docs/phpmyadmin_users.png)
+
+### Estructura del proyecto
+
+![Estructura del proyecto](docs/estructura.png)
+
+Rutas disponibles (acceso en http://127.0.0.1:8000):
+
+| Ruta | Descripción |
+|------|-------------|
+| `/register` | Formulario de registro |
+| `/login` | Inicio de sesión |
+| `/home` | Dashboard (solo con sesión iniciada) |
 
 ---
 
@@ -153,9 +242,9 @@ Cada fragmento va en un bloque de código con una línea que explique qué hace.
 
 | Elemento | Valor |
 |----------|-------|
-| Motor | `[COMPLETAR]` |
-| Herramienta de administración | `[COMPLETAR: phpMyAdmin u otra]` |
-| Base de datos | `[COMPLETAR]` |
+| Motor | MySQL 8.4.7 (WampServer) |
+| Herramienta de administración | phpMyAdmin |
+| Base de datos | `prueba` |
 | Host y puerto | `127.0.0.1` : `3306` |
 
 ### 4.2 Cómo interviene Laravel
@@ -167,59 +256,106 @@ Cada fragmento va en un bloque de código con una línea que explique qué hace.
 ### 4.3 Comandos para crear las tablas
 
 ```sql
-CREATE DATABASE [COMPLETAR: nombre] CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE prueba CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
 ```bash
 php artisan migrate
 ```
 
-Tablas que quedaron creadas: `[COMPLETAR: revisa en phpMyAdmin]`
+Tablas que quedaron creadas: `users`, `password_reset_tokens`, `sessions`, `cache`, `cache_locks`, `jobs`, `job_batches`, `failed_jobs` y `migrations`.
 
 ### 4.4 Respaldo (backup)
 
-Copia guardada en el repositorio: `database/backup/[COMPLETAR].sql`
+Copia guardada en el repositorio: `database/backup/prueba.sql`
 
 ```bash
-mysqldump -u [usuario] -p [nombre_de_la_base] > database/backup/[COMPLETAR].sql
+mysqldump -u root -p prueba > database/backup/prueba.sql
 ```
 
 Para restaurarlo:
 
 ```bash
-mysql -u [usuario] -p [nombre_de_la_base] < database/backup/[COMPLETAR].sql
+mysql -u root -p prueba < database/backup/prueba.sql
 ```
 
 ---
 
 ## 5. Dificultades y soluciones
 
-Escribe aquí los problemas que realmente tuviste.
+### Dificultad 1: Laravel instalaba la versión 9 y fallaba
 
-- **Dificultad 1:** `[COMPLETAR]`
-  - **Solución:** `[COMPLETAR]`
-- **Dificultad 2:** `[COMPLETAR]`
-  - **Solución:** `[COMPLETAR]`
-- **Dificultad 3 (si la hubo):** `[COMPLETAR]`
-  - **Solución:** `[COMPLETAR]`
+Al ejecutar `laravel new PRUEBA` aparecía: `laravel/laravel's latest version requires php ^8.3 which is not satisfied by your platform`. Composer intentaba instalar Laravel 9 y bloqueaba la instalación por avisos de seguridad. La terminal usaba PHP 8.0.30.
+
+**Solución:** cambiar la versión de PHP en WampServer (PHP > Versión > 8.3.28) y forzarla en la terminal:
+
+```powershell
+$env:Path = "C:\wamp64\bin\php\php8.3.28;" + $env:Path
+php -v
+```
+
+### Dificultad 2: La terminal volvía a PHP 8.0.30
+
+Al abrir una terminal nueva aparecía: `Your Composer dependencies require a PHP version ">= 8.3.0". You are running 8.0.30.`
+
+**Solución:** repetir el comando de PATH en cada terminal nueva, o dejarlo permanente agregando `C:\wamp64\bin\php\php8.3.28` al inicio del `Path` en las variables de entorno de Windows.
+
+### Dificultad 3: El comando `laravel` no se reconocía
+
+El instalador global quedaba instalado, pero Windows no encontraba el comando.
+
+**Solución:** crear el proyecto directamente con Composer: `composer create-project laravel/laravel PRUEBA`.
+
+### Dificultad 4: `npm` y `npx` no se reconocían
+
+Al correr `npm install` y `composer run dev` aparecía que `npm` y `npx` no eran comandos válidos, porque Node.js no estaba instalado y luego su ruta no estaba en el PATH de la terminal.
+
+**Solución:** instalar Node.js (LTS) desde nodejs.org con la opción *Add to PATH* y reiniciar VS Code. Si persiste: `$env:Path = "C:\Program Files\nodejs;" + $env:Path`.
+
+### Dificultad 5: Laravel usaba SQLite en lugar de MySQL
+
+Laravel 13 crea el proyecto con `DB_CONNECTION=sqlite` y las variables de MySQL vienen comentadas, por lo que las primeras migraciones corrieron sobre SQLite (`php artisan migrate` respondía `Nothing to migrate`) y después `db:show` indicaba `Unknown database 'laravel'`.
+
+**Solución:** en el `.env` se cambió `DB_CONNECTION` a `mysql`, se descomentaron y completaron `DB_HOST`, `DB_PORT`, `DB_DATABASE=prueba`, `DB_USERNAME` y `DB_PASSWORD`, sin espacios sobrantes. Luego se ejecutó `php artisan config:clear` y `php artisan migrate`, y las tablas se crearon correctamente en la base `prueba`.
+
+### Dificultad 6: Error `Specified key was too long; max key length is 1000 bytes`
+
+Al migrar fallaba la creación de índices en `users` y `failed_jobs`, porque MySQL creaba las tablas con el motor MyISAM.
+
+**Solución:** configurar el motor InnoDB en `config/database.php` (`'engine' => 'InnoDB'`) y agregar en `AppServiceProvider.php`:
+
+```php
+use Illuminate\Support\Facades\Schema;
+
+public function boot(): void
+{
+    Schema::defaultStringLength(191);
+}
+```
+
+Después se ejecutó `php artisan migrate:fresh` y las migraciones terminaron en DONE.
+
+### Dificultad 7: phpMyAdmin mostraba 404 en `localhost/phpmyadmin`
+
+La ruta de phpMyAdmin cambia según la versión instalada en WAMP.
+
+**Solución:** entrar desde el menú de WAMP: *Database management > phpMyAdmin*.
 
 ---
 
 ## 6. Referencias
 
-Deja solo las fuentes que de verdad consultaste (mínimo tres):
-
 1. Laravel. *Authentication*. https://laravel.com/docs/authentication
 2. Laravel. *Database: Migrations*. https://laravel.com/docs/migrations
 3. Laravel. *laravel/ui*. https://github.com/laravel/ui
 4. Bootstrap. *Documentation*. https://getbootstrap.com/docs/
-5. `[COMPLETAR: otra fuente, video o tutorial que hayas usado]`
+5. Composer. *Documentation*. https://getcomposer.org/
 
 ---
 
 ## 7. Fecha de ejecución del laboratorio
 
-`[COMPLETAR: día en que realizaste la práctica]`
+`20 de octubre de 2026`
 
 ---
 
@@ -227,7 +363,6 @@ Deja solo las fuentes que de verdad consultaste (mínimo tres):
 
 - **Fecha de entrega:** 16 de octubre de 2026
 - **Forma de entrega:** repositorio en GitHub enlazado en la plataforma académica, con hoja de presentación.
-- **Repositorio:** `[COMPLETAR: enlace]`
 
 ---
 
