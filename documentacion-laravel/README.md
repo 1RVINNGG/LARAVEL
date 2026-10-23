@@ -212,19 +212,19 @@ protected $fillable = [
 
 ### Formulario de registro
 
-![Formulario de registro](docs/registro.png)
+![Formulario de registro](../docs/registro.png)
 
 ### Dashboard tras iniciar sesión
 
-![Panel con sesión iniciada](docs/dashboard.png)
+![Panel con sesión iniciada](../docs/dashboard.png)
 
 ### Usuarios guardados en MySQL (phpMyAdmin)
 
-![Tabla users en phpMyAdmin](docs/phpmyadmin_users.png)
+![Tabla users en phpMyAdmin](../docs/phpmyadmin_users.png)
 
 ### Estructura del proyecto
 
-![Estructura del proyecto](docs/estructura.png)
+![Estructura del proyecto](../docs/estructura.png)
 
 Rutas disponibles (acceso en http://127.0.0.1:8000):
 
